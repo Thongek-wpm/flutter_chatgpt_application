@@ -140,8 +140,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         padding: const EdgeInsets.all(8.0),
                         child: ElevatedButton(
                           style: ButtonStyle(
-                            minimumSize:
-                                MaterialStateProperty.all(const Size(30.0, 30.0)),
+                            minimumSize: MaterialStateProperty.all(
+                                const Size(30.0, 30.0)),
                             backgroundColor:
                                 MaterialStateProperty.all(Colors.grey),
                           ),
@@ -167,7 +167,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               context: context,
                               builder: (context) => AlertDialog(
                                 title: const Text('Clean Pressed'),
-                                content: const Text('Form data has been cleared.'),
+                                content:
+                                    const Text('Form data has been cleared.'),
                                 actions: [
                                   ElevatedButton(
                                     onPressed: () {

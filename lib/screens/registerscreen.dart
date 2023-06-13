@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -17,6 +17,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _confirmPasswordController = TextEditingController();
   TextEditingController _birthdateController = TextEditingController();
+  List<String> partners = [];
 
   Future getImage(ImageSource source) async {
     final pickedFile = await picker.getImage(source: source);
@@ -40,6 +41,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
         print('No image selected.');
       }
     });
+  }
+
+  void addPartner(String partnerName) {
+    if (!partners.contains(partnerName)) {
+      partners.add(partnerName);
+    }
+  }
+
+  bool isPartner(String partnerName) {
+    return partners.contains(partnerName);
   }
 
   @override
@@ -114,7 +125,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     filled: true,
                     fillColor: Colors.grey[200],
                     labelStyle: const TextStyle(color: Colors.grey),
+                    helperText:
+                        '*Please enter your full name: Firstname_Lastname*',
+                    helperStyle:
+                        const TextStyle(color: Colors.white54, fontSize: 12.0),
                   ),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please enter your full name';
+                    }
+
+                    // Validate if the name follows the format: Firstname_Lastname
+                    RegExp nameRegex = RegExp(r'^[A-Za-z]+_[A-Za-z]+$');
+                    if (!nameRegex.hasMatch(value)) {
+                      return 'Please enter your full name : Firstname_Lastname';
+                    }
+
+                    return null;
+                  },
                 ),
               ),
               const SizedBox(height: 16.0),
@@ -127,10 +155,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     filled: true,
                     fillColor: Colors.grey[200],
                     labelStyle: const TextStyle(color: Colors.grey),
+                    helperText: 'Please enter a valid email address',
+                    helperStyle:
+                        const TextStyle(color: Colors.white54, fontSize: 12.0),
                   ),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please enter your email';
+                    }
+
+                    // Validate if the email is in the correct format
+                    RegExp emailRegex =
+                        RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$');
+                    if (!emailRegex.hasMatch(value)) {
+                      return 'Please enter a valid email address';
+                    }
+
+                    return null;
+                  },
                 ),
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(
+                height: 16.0,
+              ),
               SizedBox(
                 width: double.infinity,
                 child: TextFormField(
@@ -141,16 +188,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     filled: true,
                     fillColor: Colors.grey[200],
                     labelStyle: const TextStyle(color: Colors.grey),
+                    helperText:
+                        '*Password must contain at least 8 characters.*',
+                    helperStyle:
+                        const TextStyle(color: Colors.white54, fontSize: 12.0),
                   ),
                   validator: (value) {
-                    if (value != _confirmPasswordController.text) {
-                      return 'Passwords do not match';
+                    if (value!.length < 8) {
+                      return 'Password must contain at least 8 characters';
                     }
                     return null;
                   },
                 ),
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               SizedBox(
                 width: double.infinity,
                 child: TextFormField(
@@ -161,6 +212,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     filled: true,
                     fillColor: Colors.grey[200],
                     labelStyle: const TextStyle(color: Colors.grey),
+                    helperText: '*Confirm Password must do match.*',
+                    helperStyle:
+                        const TextStyle(color: Colors.white54, fontSize: 12.0),
                   ),
                   onChanged: (value) {
                     if (_passwordController.text != value) {
@@ -184,7 +238,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     context: context,
                     initialDate: DateTime.now(),
                     firstDate: DateTime.now(),
-                    lastDate: DateTime.now(),
+                    lastDate: DateTime(DateTime.now().year + 1),
                   );
 
                   if (selectedDate != null) {
@@ -209,7 +263,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         context: context,
                         initialDate: DateTime.now(),
                         firstDate: DateTime.now(),
-                        lastDate: DateTime.now(),
+                        lastDate: DateTime(DateTime.now().year + 1),
                       );
 
                       if (selectedDate != null) {
@@ -225,107 +279,73 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                 ),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter your birthdate';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 16.0),
-              SizedBox(
-                width: double.infinity,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          // Perform registration logic here
-                          String firstName = _firstNameController.text;
-                          String email = _emailController.text;
-                          String password = _passwordController.text;
-                          String birthdate = _birthdateController.text;
+              Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        // Perform registration logic here
+                        String fullName = _firstNameController.text;
+                        String email = _emailController.text;
+                        String password = _passwordController.text;
+                        String birthdate = _birthdateController.text;
 
-                          // Add your registration code here
+                        // Register user with the provided information
 
-                          // Reset form fields
-                          _firstNameController.clear();
-                          _emailController.clear();
-                          _passwordController.clear();
-                          _birthdateController.clear();
-                          _confirmPasswordController.clear();
-                          _image = null;
-
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text('Registration Successful'),
-                              content: const Text(
-                                  'You have successfully registered.'),
-                              actions: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text('OK'),
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-                      },
-                      child: const Text('Register'),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ElevatedButton(
-                        style: ButtonStyle(
-                          minimumSize:
-                              MaterialStateProperty.all(const Size(30.0, 30.0)),
-                          backgroundColor:
-                              MaterialStateProperty.all(Colors.grey),
+                        // Redirect to another screen or perform additional actions
+                      }
+                    },
+                    child: const Row(
+                      children: [
+                        Icon(
+                          Icons.person_add,
+                          size: 15,
                         ),
-                        child: const Row(
-                          children: [
-                            Icon(
-                              Icons.cleaning_services,
-                              size: 20,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Text('Clean'),
-                            ),
-                          ],
+                        Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text('Register'),
                         ),
-                        onPressed: () {
-                          // ดำเนินการเมื่อปุ่ม Clean ถูกกด
-                          setState(() {
-                            // ลบข้อมูลในฟอร์ม
-                            _formKey.currentState!.reset();
-                            _firstNameController.clear();
-                            _emailController.clear();
-                            _passwordController.clear();
-                            _birthdateController.clear();
-                            _confirmPasswordController.clear();
-                            _image = null;
-                          });
-
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text('Clean Pressed'),
-                              content:
-                                  const Text('Form data has been cleared.'),
-                              actions: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text('OK'),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 16.0),
+                  ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.red),
+                    ),
+                    onPressed: () {
+                      _formKey.currentState!.reset();
+                      _firstNameController.clear();
+                      _emailController.clear();
+                      _passwordController.clear();
+                      _confirmPasswordController.clear();
+                      _birthdateController.clear();
+                      setState(() {
+                        _image = null;
+                      });
+                    },
+                    child: const Row(
+                      children: [
+                        Icon(
+                          Icons.cleaning_services_sharp,
+                          size: 15,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text('Reset'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
