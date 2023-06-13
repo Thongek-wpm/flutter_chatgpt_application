@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:flutter_chatgpt_application/screens/registerscreen.dart';
 
@@ -23,7 +25,6 @@ class _LoginScreenState extends State<LoginScreen> {
   void _login() {
     if (_formKey.currentState!.validate()) {
       // ดำเนินการเมื่อปุ่ม Login ถูกกด
-      print('Login successful');
     }
   }
 
@@ -45,8 +46,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 80.0,
               ),
             ),
-            SizedBox(height: 10.0),
-            Text(
+            const SizedBox(height: 10.0),
+            const Text(
               'Welcome to ChatGPT',
               style: TextStyle(
                 color: Colors.white,
@@ -54,15 +55,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             Form(
               key: _formKey,
               child: Column(
                 children: [
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 35.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 35.0),
                     child: TextFormField(
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'E-mail',
                         labelStyle: TextStyle(fontSize: 16.0),
                         filled: true,
@@ -83,11 +84,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                     ),
                   ),
-                  SizedBox(height: 10.0),
+                  const SizedBox(height: 10.0),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 35.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 35.0),
                     child: TextFormField(
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Password',
                         labelStyle: TextStyle(fontSize: 16.0),
                         filled: true,
@@ -109,49 +110,49 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                     ),
                   ),
-                  SizedBox(height: 5.0),
+                  const SizedBox(height: 5.0),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ElevatedButton(
                         style: ButtonStyle(
                           minimumSize:
-                              MaterialStateProperty.all(Size(30.0, 30.0)),
+                              MaterialStateProperty.all(const Size(30.0, 30.0)),
                           backgroundColor: MaterialStateProperty.all(
                             Colors.greenAccent.shade700,
                           ),
                         ),
-                        child: Row(
+                        onPressed: _login,
+                        child: const Row(
                           children: [
                             Icon(
                               Icons.login,
                               size: 20,
                             ),
                             Padding(
-                              padding: const EdgeInsets.all(8.0),
+                              padding: EdgeInsets.all(8.0),
                               child: Text('Login'),
                             ),
                           ],
                         ),
-                        onPressed: _login,
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: ElevatedButton(
                           style: ButtonStyle(
                             minimumSize:
-                                MaterialStateProperty.all(Size(30.0, 30.0)),
+                                MaterialStateProperty.all(const Size(30.0, 30.0)),
                             backgroundColor:
                                 MaterialStateProperty.all(Colors.grey),
                           ),
-                          child: Row(
+                          child: const Row(
                             children: [
                               Icon(
                                 Icons.cleaning_services,
                                 size: 20,
                               ),
                               Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding: EdgeInsets.all(8.0),
                                 child: Text('Clean'),
                               ),
                             ],
@@ -165,14 +166,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
-                                title: Text('Clean Pressed'),
-                                content: Text('Form data has been cleared.'),
+                                title: const Text('Clean Pressed'),
+                                content: const Text('Form data has been cleared.'),
                                 actions: [
                                   ElevatedButton(
                                     onPressed: () {
                                       Navigator.of(context).pop();
                                     },
-                                    child: Text('OK'),
+                                    child: const Text('OK'),
                                   ),
                                 ],
                               ),
@@ -191,7 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    const Text(
                       'If you don\'t have an account yet:',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -208,7 +209,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         );
                       },
-                      child: Text(
+                      child: const Text(
                         'REGISTER',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
@@ -219,8 +220,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 )
               ],
             ),
-            SizedBox(height: 10.0),
-            Text(
+            const SizedBox(height: 10.0),
+            const Text(
               'Or sign in with:',
               style: TextStyle(
                 color: Colors.white,
@@ -229,23 +230,23 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             ElevatedButton(
               style: ButtonStyle(
-                minimumSize: MaterialStateProperty.all(Size(200.0, 40.0)),
+                minimumSize: MaterialStateProperty.all(const Size(200.0, 40.0)),
                 backgroundColor: MaterialStateProperty.all(Colors.red),
               ),
-              child: Text('sign in with Google'),
+              child: const Text('sign in with Google'),
               onPressed: () {
                 // ดำเนินการเมื่อปุ่ม Google ถูกกด
               },
             ),
-            SizedBox(height: 5.0),
+            const SizedBox(height: 5.0),
             ElevatedButton(
               style: ButtonStyle(
-                minimumSize: MaterialStateProperty.all(Size(200.0, 40.0)),
+                minimumSize: MaterialStateProperty.all(const Size(200.0, 40.0)),
                 backgroundColor: MaterialStateProperty.all(
                   Colors.blue.shade800,
                 ),
               ),
-              child: Text('sign in with Facebook'),
+              child: const Text('sign in with Facebook'),
               onPressed: () {
                 // ดำเนินการเมื่อปุ่ม Facebook ถูกกด
               },
