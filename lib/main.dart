@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chatgpt_application/screens/loginscreen.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(); // เริ่ม Firebase ก่อนใช้งานแอป
 }
 
 class MyApp extends StatelessWidget {
