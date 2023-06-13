@@ -19,7 +19,6 @@ class MyApp extends StatelessWidget {
         hintColor: Colors.grey.shade600,
         textTheme: const TextTheme(
           // กำหนดสีตัวอักษรทั้งหมดในแอปเป็นสีขาว
-          bodyLarge: TextStyle(color: Colors.white),
         ),
 
         buttonTheme: ButtonThemeData(

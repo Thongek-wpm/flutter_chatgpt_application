@@ -2,10 +2,6 @@ import 'dart:io';
 import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-// ignore: depend_on_referenced_packages
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -22,10 +18,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   TextEditingController _confirmPasswordController = TextEditingController();
   TextEditingController _birthdateController = TextEditingController();
   List<String> partners = [];
-
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   Future getImage(ImageSource source) async {
     final pickedFile = await picker.getImage(source: source);
@@ -68,45 +60,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _passwordController.dispose();
     _birthdateController.dispose();
     super.dispose();
-  }
-
-  void registerUser() async {
-    try {
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
-      );
-      User? user = userCredential.user;
-
-      if (user != null) {
-        String fullName = _firstNameController.text;
-        String birthdate = _birthdateController.text;
-
-        // Upload user image to Firebase Storage
-        if (_image != null) {
-          Reference ref = _storage.ref().child('profile_images/${user.uid}');
-          await ref.putFile(_image!);
-          String imageUrl = await ref.getDownloadURL();
-          // Save image URL to user document in Firestore
-          await _firestore.collection('users').doc(user.uid).set({
-            'fullName': fullName,
-            'birthdate': birthdate,
-            'imageUrl': imageUrl,
-          });
-        } else {
-          // Save user information without image URL to Firestore
-          await _firestore.collection('users').doc(user.uid).set({
-            'fullName': fullName,
-            'birthdate': birthdate,
-          });
-        }
-
-        // Redirect to another screen or perform additional actions
-      }
-    } catch (e) {
-      // Handle registration errors
-      print('Error registering user: $e');
-    }
   }
 
   @override
@@ -163,30 +116,207 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               const SizedBox(height: 16.0),
-              // Rest of the form fields...
-              // ...
-              // ...
+              SizedBox(
+                width: double.infinity,
+                child: TextFormField(
+                  controller: _firstNameController,
+                  decoration: InputDecoration(
+                    labelText: 'Full Name',
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                    labelStyle: const TextStyle(color: Colors.grey),
+                    helperText:
+                        '*Please enter your full name: Firstname_Lastname*',
+                    helperStyle:
+                        const TextStyle(color: Colors.white54, fontSize: 12.0),
+                  ),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please enter your full name';
+                    }
 
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    // Perform registration logic here
-                    registerUser();
-                  }
-                },
-                child: const Row(
-                  children: [
-                    Icon(
-                      Icons.person_add,
-                      size: 15,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('Register'),
-                    ),
-                  ],
+                    // Validate if the name follows the format: Firstname_Lastname
+                    RegExp nameRegex = RegExp(r'^[A-Za-z]+_[A-Za-z]+$');
+                    if (!nameRegex.hasMatch(value)) {
+                      return 'Please enter your full name : Firstname_Lastname';
+                    }
+
+                    return null;
+                  },
                 ),
               ),
+              const SizedBox(height: 16.0),
+              SizedBox(
+                width: double.infinity,
+                child: TextFormField(
+                  controller: _emailController,
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                    labelStyle: const TextStyle(color: Colors.grey),
+                    helperText: 'Please enter a valid email address',
+                    helperStyle:
+                        const TextStyle(color: Colors.white54, fontSize: 12.0),
+                  ),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please enter your email';
+                    }
+
+                    // Validate if the email is in the correct format
+                    RegExp emailRegex =
+                        RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$');
+                    if (!emailRegex.hasMatch(value)) {
+                      return 'Please enter a valid email address';
+                    }
+
+                    return null;
+                  },
+                ),
+              ),
+              const SizedBox(
+                height: 16.0,
+              ),
+              SizedBox(
+                width: double.infinity,
+                child: TextFormField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                    labelStyle: const TextStyle(color: Colors.grey),
+                    helperText:
+                        '*Password must contain at least 8 characters.*',
+                    helperStyle:
+                        const TextStyle(color: Colors.white54, fontSize: 12.0),
+                  ),
+                  validator: (value) {
+                    if (value!.length < 8) {
+                      return 'Password must contain at least 8 characters';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              SizedBox(
+                width: double.infinity,
+                child: TextFormField(
+                  controller: _confirmPasswordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Confirm Password',
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                    labelStyle: const TextStyle(color: Colors.grey),
+                    helperText: '*Confirm Password must do match.*',
+                    helperStyle:
+                        const TextStyle(color: Colors.white54, fontSize: 12.0),
+                  ),
+                  onChanged: (value) {
+                    if (_passwordController.text != value) {
+                      setState(() {
+                        _formKey.currentState!.validate();
+                      });
+                    }
+                  },
+                  validator: (value) {
+                    if (value != _passwordController.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              TextFormField(
+                onTap: () async {
+                  DateTime? selectedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime(DateTime.now().year + 1),
+                  );
+
+                  if (selectedDate != null) {
+                    setState(() {
+                      _birthdateController.text =
+                          selectedDate.toString().split(' ')[0];
+                    });
+                  }
+                },
+                controller: _birthdateController,
+                decoration: InputDecoration(
+                  labelText: 'Birthdate',
+                  filled: true,
+                  fillColor: Colors.grey[200],
+                  labelStyle: const TextStyle(
+                    fontSize: 16.0,
+                    color: Colors.grey,
+                  ),
+                  suffixIcon: GestureDetector(
+                    onTap: () async {
+                      DateTime? selectedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime(DateTime.now().year + 1),
+                      );
+
+                      if (selectedDate != null) {
+                        setState(() {
+                          _birthdateController.text =
+                              selectedDate.toString().split(' ')[0];
+                        });
+                      }
+                    },
+                    child: const Icon(
+                      Icons.calendar_today,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter your birthdate';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16.0),
+              Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        // Perform registration logic here
+                        String fullName = _firstNameController.text;
+                        String email = _emailController.text;
+                        String password = _passwordController.text;
+                        String birthdate = _birthdateController.text;
+
+                        // Register user with the provided information
+
+                        // Redirect to another screen or perform additional actions
+                      }
+                    },
+                    child: const Row(
+                      children: [
+                        Icon(
+                          Icons.person_add,
+                          size: 15,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text('Register'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16.0),
                   ElevatedButton(
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(Colors.red),
@@ -217,10 +347,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ],
               ),
-            
+            ],
           ),
         ),
-    
+      ),
     );
   }
 }
