@@ -63,13 +63,17 @@ class _LoginScreenState extends State<LoginScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 35.0),
                     child: TextFormField(
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
                       decoration: const InputDecoration(
                         labelText: 'E-mail',
-                        labelStyle: TextStyle(fontSize: 16.0),
+                        labelStyle:
+                            TextStyle(color: Colors.white, fontSize: 16),
                         filled: true,
-                        fillColor: Colors.white,
                         hintText: 'Enter your E-mail',
-                        hintStyle: TextStyle(),
+                        hintStyle: TextStyle(color: Colors.white, fontSize: 16),
                       ),
                       validator: (value) {
                         if (value!.isEmpty) {
@@ -88,13 +92,17 @@ class _LoginScreenState extends State<LoginScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 35.0),
                     child: TextFormField(
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
                       decoration: const InputDecoration(
                         labelText: 'Password',
-                        labelStyle: TextStyle(fontSize: 16.0),
+                        labelStyle:
+                            TextStyle(color: Colors.white, fontSize: 16),
                         filled: true,
-                        fillColor: Colors.white,
                         hintText: 'Enter your password',
-                        hintStyle: TextStyle(),
+                        hintStyle: TextStyle(color: Colors.white, fontSize: 16),
                       ),
                       obscureText: true,
                       validator: (value) {
