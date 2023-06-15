@@ -1,13 +1,14 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_chatgpt_application/screens/chatscreen.dart';
 import 'package:flutter_chatgpt_application/screens/registerscreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_chatgpt_application/models/profiles.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -51,26 +52,6 @@ class _LoginScreenState extends State<LoginScreen> {
       r'^[\w-]+(?:\.[\w-]+)*@(?:[\w-]+\.)+[a-zA-Z]{2,7}$',
     );
     return emailRegex.hasMatch(email);
-  }
-
-  void _signInWithFacebook() async {
-    try {
-      final LoginResult result = await FacebookAuth.instance.login();
-      final AccessToken accessToken = result.accessToken!;
-
-      final OAuthCredential credential =
-          FacebookAuthProvider.credential(accessToken.token);
-
-      final UserCredential userCredential =
-          await _auth.signInWithCredential(credential);
-      final User? user = userCredential.user;
-
-      // ดำเนินการเมื่อ Authentication ดำเนินการสำเร็จด้วย Facebook
-      print('Signed in: ${user!.displayName}');
-    } catch (e) {
-      // ดำเนินการเมื่อเกิดข้อผิดพลาดในการ Authentication ดำเนินการด้วย Facebook
-      print('Error signing in with Facebook: $e');
-    }
   }
 
   @override
@@ -303,50 +284,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 )
               ],
-            ),
-            const SizedBox(height: 10.0),
-            const Text(
-              'Or sign in with:',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16.0,
-              ),
-            ),
-            const SizedBox(height: 5.0),
-            ElevatedButton(
-              style: ButtonStyle(
-                minimumSize: MaterialStateProperty.all(const Size(200.0, 40.0)),
-                backgroundColor: MaterialStateProperty.all(
-                  Colors.blue.shade800,
-                ),
-              ),
-              child: const Text('sign in with Facebook'),
-              onPressed: () async {
-                // ดำเนินการเมื่อปุ่ม Facebook ถูกกด
-                final LoginResult result = await FacebookAuth.instance.login();
-                if (result.status == LoginStatus.success) {
-                  final AuthCredential credential =
-                      FacebookAuthProvider.credential(
-                    result.accessToken!.token,
-                  );
-
-                  // เข้าสู่ระบบด้วย Firebase
-                  FirebaseAuth auth = FirebaseAuth.instance;
-                  final UserCredential userCredential =
-                      await auth.signInWithCredential(credential);
-
-                  // ตรวจสอบว่าการเข้าสู่ระบบสำเร็จหรือไม่
-                  if (userCredential.user != null) {
-                    // เข้าสู่ระบบสำเร็จ
-                  } else {
-                    // เข้าสู่ระบบไม่สำเร็จ
-                  }
-                } else if (result.status == LoginStatus.cancelled) {
-                  // ผู้ใช้ยกเลิกการเข้าสู่ระบบ
-                } else {
-                  // เกิดข้อผิดพลาดในการเข้าสู่ระบบด้วย Facebook
-                }
-              },
             ),
           ],
         ),
