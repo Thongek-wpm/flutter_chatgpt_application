@@ -53,14 +53,6 @@ class _LoginScreenState extends State<LoginScreen> {
     return emailRegex.hasMatch(email);
   }
 
-  void _signInWithGoogle() async {
-    try {
-      // ดำเนินการเมื่อ Authentication ด้วย Google เสร็จสิ้น
-    } catch (e) {
-      // ดำเนินการเมื่อเกิดข้อผิดพลาดในการ Authentication ด้วย Google
-    }
-  }
-
   void _signInWithFacebook() async {
     try {
       final LoginResult result = await FacebookAuth.instance.login();
@@ -79,16 +71,6 @@ class _LoginScreenState extends State<LoginScreen> {
       // ดำเนินการเมื่อเกิดข้อผิดพลาดในการ Authentication ดำเนินการด้วย Facebook
       print('Error signing in with Facebook: $e');
     }
-  }
-
-  void navigateToNextPage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            ChatScreen(), // NextPage คือหน้าต่อไปที่คุณต้องการเข้าถึง
-      ),
-    );
   }
 
   @override
@@ -330,17 +312,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 fontSize: 16.0,
               ),
             ),
-            ElevatedButton(
-              style: ButtonStyle(
-                minimumSize: MaterialStateProperty.all(const Size(200.0, 40.0)),
-                backgroundColor: MaterialStateProperty.all(Colors.red),
-              ),
-              child: const Text('sign in with Google'),
-              onPressed: () {
-                // ดำเนินการเมื่อปุ่ม Google ถูกกด
-                
-              },
-            ),
             const SizedBox(height: 5.0),
             ElevatedButton(
               style: ButtonStyle(
@@ -350,9 +321,31 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               child: const Text('sign in with Facebook'),
-              onPressed: () {
+              onPressed: () async {
                 // ดำเนินการเมื่อปุ่ม Facebook ถูกกด
-                
+                final LoginResult result = await FacebookAuth.instance.login();
+                if (result.status == LoginStatus.success) {
+                  final AuthCredential credential =
+                      FacebookAuthProvider.credential(
+                    result.accessToken!.token,
+                  );
+
+                  // เข้าสู่ระบบด้วย Firebase
+                  FirebaseAuth auth = FirebaseAuth.instance;
+                  final UserCredential userCredential =
+                      await auth.signInWithCredential(credential);
+
+                  // ตรวจสอบว่าการเข้าสู่ระบบสำเร็จหรือไม่
+                  if (userCredential.user != null) {
+                    // เข้าสู่ระบบสำเร็จ
+                  } else {
+                    // เข้าสู่ระบบไม่สำเร็จ
+                  }
+                } else if (result.status == LoginStatus.cancelled) {
+                  // ผู้ใช้ยกเลิกการเข้าสู่ระบบ
+                } else {
+                  // เกิดข้อผิดพลาดในการเข้าสู่ระบบด้วย Facebook
+                }
               },
             ),
           ],
