@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chatgpt_application/models/profiles.dart';
 import 'package:flutter_chatgpt_application/screens/loginscreen.dart';
@@ -25,9 +26,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     birthdate: '',
     confirmPassword: '',
   );
-
   File? _image;
   final picker = ImagePicker();
+  final TextEditingController _nameController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -35,26 +39,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       TextEditingController();
   final TextEditingController _birthdateController = TextEditingController();
   List<String> partners = [];
-
-  Future getImage(ImageSource source) async {
-    final pickedFile = await picker.getImage(source: source);
-
-    setState(() {
-      if (pickedFile != null) {
-        _image = File(pickedFile.path);
-      } else {}
-    });
-  }
-
-  Future<void> takePicture() async {
-    final pickedFile = await picker.getImage(source: ImageSource.camera);
-
-    setState(() {
-      if (pickedFile != null) {
-        _image = File(pickedFile.path);
-      } else {}
-    });
-  }
 
   void addPartner(String partnerName) {
     if (!partners.contains(partnerName)) {
@@ -84,28 +68,56 @@ class _RegisterScreenState extends State<RegisterScreen> {
         String password = _passwordController.text;
         String birthdate = _birthdateController.text;
 
-        // Create user with email and password using Firebase Authentication
         UserCredential userCredential =
             await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: email,
           password: password,
         );
 
-        // Save user data to Firestore
-        DocumentReference userDocRef = FirebaseFirestore.instance
-            .collection('profiles')
-            .doc(userCredential.user!.uid);
+        if (_image != null) {
+          String imageUrl = await uploadImageToFirebaseStorage(_image!);
 
-        await userDocRef.set({
-          'full_name': fullName,
-          'email': email,
-          'birthdate': birthdate,
-        });
+          DocumentReference userDocRef = FirebaseFirestore.instance
+              .collection('profiles')
+              .doc(userCredential.user!.uid);
+
+          await userDocRef.set({
+            'full_name': fullName,
+            'email': email,
+            'birthdate': birthdate,
+            'imageUrl': imageUrl,
+          });
+        } else {
+          // Handle case when no image is selected
+        }
 
         // Redirect to another screen or perform additional actions
       } catch (e) {
         // Handle registration failure here
       }
+    }
+  }
+
+  Future<String> uploadImageToFirebaseStorage(File imageFile) async {
+    final fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    final Reference reference = _storage.ref().child('images/$fileName');
+
+    final UploadTask uploadTask = reference.putFile(imageFile);
+    final TaskSnapshot taskSnapshot = await uploadTask;
+
+    final imageUrl = await taskSnapshot.ref.getDownloadURL();
+    return imageUrl;
+  }
+
+  Future<void> saveUserProfile(String imageUrl) async {
+    final User? user = _auth.currentUser;
+    if (user != null) {
+      final String userId = user.uid;
+
+      await _firestore.collection('users').doc(userId).set({
+        'name': _nameController.text,
+        'imageUrl': imageUrl,
+      });
     }
   }
 
@@ -127,7 +139,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Column(
             children: [
               GestureDetector(
-                onTap: () {
+                onTap: () async {
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
@@ -138,16 +150,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             children: <Widget>[
                               GestureDetector(
                                 child: const Text('Gallery'),
-                                onTap: () {
-                                  getImage(ImageSource.gallery);
+                                onTap: () async {
+                                  PickedFile? pickedFile = await picker
+                                      .getImage(source: ImageSource.gallery);
+                                  if (pickedFile != null) {
+                                    setState(() {
+                                      _image = File(pickedFile.path);
+                                    });
+                                  }
                                   Navigator.of(context).pop();
                                 },
                               ),
                               const SizedBox(height: 10),
                               GestureDetector(
                                 child: const Text('Camera'),
-                                onTap: () {
-                                  takePicture();
+                                onTap: () async {
+                                  PickedFile? pickedFile = await picker
+                                      .getImage(source: ImageSource.camera);
+                                  if (pickedFile != null) {
+                                    setState(() {
+                                      _image = File(pickedFile.path);
+                                    });
+                                  }
                                   Navigator.of(context).pop();
                                 },
                               ),
@@ -338,27 +362,47 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
-                        profilesCollection.add({
-                          "fullName": profile.fullname,
-                          "email": profile.email,
-                          "birthdate": profile.birthdate,
-                          "confirmPassword": profile.confirmPassword,
-                        });
+
                         try {
-                          await FirebaseAuth.instance
+                          String fullName = _firstNameController.text;
+                          String email = _emailController.text;
+                          String password = _passwordController.text;
+                          String birthdate = _birthdateController.text;
+
+                          UserCredential userCredential = await FirebaseAuth
+                              .instance
                               .createUserWithEmailAndPassword(
-                            email: profile.email,
-                            password: profile.password,
+                            email: email,
+                            password: password,
                           );
+
+                          String imageUrl = '';
+                          if (_image != null) {
+                            imageUrl =
+                                await uploadImageToFirebaseStorage(_image!);
+                          }
+
+                          DocumentReference userDocRef = FirebaseFirestore
+                              .instance
+                              .collection('profiles')
+                              .doc(userCredential.user!.uid);
+
+                          await userDocRef.set({
+                            'full_name': fullName,
+                            'email': email,
+                            'birthdate': birthdate,
+                            'imageUrl': imageUrl,
+                          });
+
                           _formKey.currentState!.reset();
+
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
                                 title: const Text('Registration Successful'),
                                 content: const Text(
-                                  'Your registration was successful.',
-                                ),
+                                    'Your registration was successful.'),
                                 actions: [
                                   TextButton(
                                     onPressed: () {
@@ -376,23 +420,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               );
                             },
                           );
-                        } on FirebaseAuthException catch (e) {
-                          String errorMessage = '';
-                          if (e.code == 'email-already-in-use') {
-                            errorMessage =
-                                'This email address is already in use.';
-                          } else if (e.code == 'weak-password') {
-                            errorMessage = 'The password is too weak.';
-                          } else {
-                            errorMessage =
-                                'An error occurred during registration.';
-                          }
+                        } catch (e) {
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
                                 title: const Text('Registration Failed'),
-                                content: Text(errorMessage),
+                                content: const Text(
+                                    'An error occurred during registration.'),
                                 actions: [
                                   TextButton(
                                     onPressed: () {

@@ -7,11 +7,9 @@ import 'package:flutter_chatgpt_application/screens/chatscreen.dart';
 import 'package:flutter_chatgpt_application/screens/registerscreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_chatgpt_application/models/profiles.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
-final GoogleSignIn _googleSignIn = GoogleSignIn();
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -57,23 +55,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _signInWithGoogle() async {
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser!.authentication;
-      final OAuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      final UserCredential userCredential =
-          await _auth.signInWithCredential(credential);
-      final User? user = userCredential.user;
-
       // ดำเนินการเมื่อ Authentication ด้วย Google เสร็จสิ้น
-      print('Signed in: ${user!.displayName}');
     } catch (e) {
       // ดำเนินการเมื่อเกิดข้อผิดพลาดในการ Authentication ด้วย Google
-      print('Error signing in with Google: $e');
     }
   }
 
