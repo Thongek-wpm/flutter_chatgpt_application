@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "692481710104",
-    "project_id": "flutter-chatgpt-c7551",
-    "storage_bucket": "flutter-chatgpt-c7551.appspot.com"
+    "project_number": "56841290771",
+    "project_id": "flutter-project-chatgpt",
+    "storage_bucket": "flutter-project-chatgpt.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:692481710104:android:360a075b951d4acd244b6d",
+        "mobilesdk_app_id": "1:56841290771:android:17f2db78900ea92b01ebe6",
         "android_client_info": {
           "package_name": "com.example.flutter_chatgpt_application"
         }
       },
       "oauth_client": [
         {
-          "client_id": "692481710104-q6u2fa68f3vru15einjmihhl770bmvvt.apps.googleusercontent.com",
+          "client_id": "56841290771-hpqka3pbgibb1q9i6l0vf1btjcr3o5e9.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBwixG4dnPEvW1mxtBHe3iiWCv1XOGDW24"
+          "current_key": "AIzaSyAXQmaVs28U6j1HKseAFJtYruL2AIAbglk"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "692481710104-q6u2fa68f3vru15einjmihhl770bmvvt.apps.googleusercontent.com",
+              "client_id": "56841290771-4lm2vdl3nivgt0ou1t811lpnkiebmi6l.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

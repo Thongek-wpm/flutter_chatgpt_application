@@ -1,7 +1,17 @@
 // ignore_for_file: library_private_types_in_public_api
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chatgpt_application/screens/chatscreen.dart';
 import 'package:flutter_chatgpt_application/screens/registerscreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_chatgpt_application/models/profiles.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+
+final FirebaseAuth _auth = FirebaseAuth.instance;
+final GoogleSignIn _googleSignIn = GoogleSignIn();
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -12,8 +22,31 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  late String _email;
-  late String _password;
+  Profile profile = Profile(
+    fullname: '',
+    email: '',
+    password: '',
+    birthdate: '',
+    confirmPassword: '',
+  );
+  Future saveLoginTypeToSP(String profile) async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    var collection = FirebaseFirestore.instance.collection('profiles');
+    var querySnapshot = await collection.get();
+    for (var doc in querySnapshot.docs) {
+      Map<String, dynamic> data = doc.data();
+      var email = data['email']; // <-- Retrieving the value.
+      if (email == email) {
+        String docId = doc.id;
+        sp.setString('Id', docId);
+        sp.setString('email', email);
+        sp.setString('fullName', data['fullName']);
+        sp.setString('password', data['password']);
+        sp.setString('birthdate', data['birthdate']);
+        sp.setString('confirmPassword', data['confirmPassword']);
+      }
+    }
+  }
 
   bool isValidEmail(String email) {
     final RegExp emailRegex = RegExp(
@@ -22,10 +55,56 @@ class _LoginScreenState extends State<LoginScreen> {
     return emailRegex.hasMatch(email);
   }
 
-  void _login() {
-    if (_formKey.currentState!.validate()) {
-      // ดำเนินการเมื่อปุ่ม Login ถูกกด
+  void _signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser!.authentication;
+      final OAuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
+      final User? user = userCredential.user;
+
+      // ดำเนินการเมื่อ Authentication ด้วย Google เสร็จสิ้น
+      print('Signed in: ${user!.displayName}');
+    } catch (e) {
+      // ดำเนินการเมื่อเกิดข้อผิดพลาดในการ Authentication ด้วย Google
+      print('Error signing in with Google: $e');
     }
+  }
+
+  void _signInWithFacebook() async {
+    try {
+      final LoginResult result = await FacebookAuth.instance.login();
+      final AccessToken accessToken = result.accessToken!;
+
+      final OAuthCredential credential =
+          FacebookAuthProvider.credential(accessToken.token);
+
+      final UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
+      final User? user = userCredential.user;
+
+      // ดำเนินการเมื่อ Authentication ดำเนินการสำเร็จด้วย Facebook
+      print('Signed in: ${user!.displayName}');
+    } catch (e) {
+      // ดำเนินการเมื่อเกิดข้อผิดพลาดในการ Authentication ดำเนินการด้วย Facebook
+      print('Error signing in with Facebook: $e');
+    }
+  }
+
+  void navigateToNextPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            ChatScreen(), // NextPage คือหน้าต่อไปที่คุณต้องการเข้าถึง
+      ),
+    );
   }
 
   @override
@@ -75,6 +154,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         hintText: 'Enter your E-mail',
                         hintStyle: TextStyle(color: Colors.white, fontSize: 16),
                       ),
+                      keyboardType: TextInputType.emailAddress,
                       validator: (value) {
                         if (value!.isEmpty) {
                           return 'Please enter your E-mail';
@@ -83,8 +163,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         }
                         return null;
                       },
-                      onSaved: (value) {
-                        _email = value!;
+                      onSaved: (String? email) {
+                        profile.email = email!;
                       },
                     ),
                   ),
@@ -113,8 +193,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         }
                         return null;
                       },
-                      onSaved: (value) {
-                        _password = value!;
+                      onSaved: (String? password) {
+                        profile.password = password!;
                       },
                     ),
                   ),
@@ -123,14 +203,43 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ElevatedButton(
-                        style: ButtonStyle(
-                          minimumSize:
-                              MaterialStateProperty.all(const Size(30.0, 30.0)),
-                          backgroundColor: MaterialStateProperty.all(
-                            Colors.greenAccent.shade700,
-                          ),
-                        ),
-                        onPressed: _login,
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            _formKey.currentState!.save();
+                          }
+                          try {
+                            await FirebaseAuth.instance
+                                .signInWithEmailAndPassword(
+                              email: profile.email,
+                              password: profile.password,
+                            )
+                                .then((value) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Welcome to Demo App"),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                              _formKey.currentState!.reset();
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return const ChatScreen();
+                                  },
+                                ),
+                              );
+                            });
+                          } on FirebaseAuthException catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(e.message!),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                            _formKey.currentState!.reset();
+                          }
+                        },
                         child: const Row(
                           children: [
                             Icon(
@@ -214,7 +323,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => RegisterScreen(),
+                            builder: (context) => const RegisterScreen(),
                           ),
                         );
                       },
@@ -245,6 +354,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: const Text('sign in with Google'),
               onPressed: () {
                 // ดำเนินการเมื่อปุ่ม Google ถูกกด
+                _signInWithGoogle;
               },
             ),
             const SizedBox(height: 5.0),
@@ -258,6 +368,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: const Text('sign in with Facebook'),
               onPressed: () {
                 // ดำเนินการเมื่อปุ่ม Facebook ถูกกด
+                _signInWithFacebook;
               },
             ),
           ],
