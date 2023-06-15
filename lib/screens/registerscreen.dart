@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
 import 'package:flutter_chatgpt_application/models/profiles.dart';
@@ -10,6 +10,8 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 
 class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
+
   @override
   _RegisterScreenState createState() => _RegisterScreenState();
 }
@@ -26,11 +28,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   File? _image;
   final picker = ImagePicker();
-  TextEditingController _firstNameController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
-  TextEditingController _confirmPasswordController = TextEditingController();
-  TextEditingController _birthdateController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+  final TextEditingController _birthdateController = TextEditingController();
   List<String> partners = [];
 
   Future getImage(ImageSource source) async {
@@ -39,9 +42,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() {
       if (pickedFile != null) {
         _image = File(pickedFile.path);
-      } else {
-        print('No image selected.');
-      }
+      } else {}
     });
   }
 
