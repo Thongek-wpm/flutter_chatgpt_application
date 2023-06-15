@@ -338,7 +338,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: const Text('sign in with Google'),
               onPressed: () {
                 // ดำเนินการเมื่อปุ่ม Google ถูกกด
-                _signInWithGoogle;
+                
               },
             ),
             const SizedBox(height: 5.0),
@@ -352,7 +352,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: const Text('sign in with Facebook'),
               onPressed: () {
                 // ดำเนินการเมื่อปุ่ม Facebook ถูกกด
-                _signInWithFacebook;
+                
               },
             ),
           ],
