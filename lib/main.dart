@@ -4,7 +4,7 @@ import 'package:flutter_chatgpt_application/screens/loginscreen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
