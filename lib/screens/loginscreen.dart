@@ -1,8 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_chatgpt_application/screens/chatscreen.dart';
@@ -10,8 +8,6 @@ import 'package:flutter_chatgpt_application/screens/registerscreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_chatgpt_application/models/profiles.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
-final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -286,87 +282,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ],
             ),
-            const Text(
-              'Or sign In with....',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 80),
-              child: ElevatedButton(
-                style: ButtonStyle(
-                  minimumSize: MaterialStateProperty.all(const Size(50, 50)),
-                  backgroundColor: MaterialStateColor.resolveWith((states) {
-                    return Colors.red;
-                  }),
-                ),
-                onPressed: () {},
-                child: const Row(
-                  children: [
-                    Icon(
-                      FontAwesomeIcons.google,
-                      size: 15,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('Sign in with Google'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 80),
-              child: ElevatedButton(
-                style: ButtonStyle(
-                  minimumSize: MaterialStateProperty.all(const Size(50, 50)),
-                  backgroundColor: MaterialStateColor.resolveWith((states) {
-                    return Colors.blue.shade900;
-                  }),
-                ),
-                onPressed: () {
-                  // Call the facebookSignIn method here
-                  facebookSignIn();
-                },
-                child: const Row(
-                  children: [
-                    Icon(
-                      FontAwesomeIcons.facebook,
-                      size: 15,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('Sign in with Facebook'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
           ],
         ),
       ),
     );
-  }
-}
-
-Future<void> facebookSignIn() async {
-  try {
-    final LoginResult result = await FacebookAuth.instance.login();
-
-    if (result.status == LoginStatus.success) {
-      final AccessToken accessToken = result.accessToken!;
-      print('Facebook Login Successful');
-      print('Access Token: ${accessToken.token}');
-      final userData = await FacebookAuth.instance.getUserData();
-      print('User Data: $userData');
-    } else {
-      print('Facebook Login Failed');
-      print('Status: ${result.status}');
-      print('Error Message: ${result.message}');
-    }
-  } catch (e) {
-    print('Facebook Login Error: $e');
   }
 }

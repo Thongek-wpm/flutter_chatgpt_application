@@ -26,18 +26,41 @@ class _ChatScreenState extends State<ChatScreen> {
   final Future<FirebaseApp> firebase = Firebase.initializeApp();
 
   String? imageUrl;
-  String? fullname;
-
+  late String fullname = fullname; // เพิ่มการกำหนดค่าเริ่มต้นให้กับ fullname
   @override
   void initState() {
     super.initState();
-    fetchUserProfile();
+    fetchUserProfile().then((_) {
+      setState(() {
+        fullname = profile.fullname;
+      });
+    });
   }
 
   @override
   void dispose() {
     super.dispose();
     // อื่น ๆ ที่คุณต้องการทำในการทำลายวัตถุ
+  }
+
+  Future<void> saveLoginTypeToSP(String email) async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    var collection = FirebaseFirestore.instance.collection('profiles');
+    var querySnapshot = await collection.get();
+    for (var doc in querySnapshot.docs) {
+      Map<String, dynamic> data = doc.data();
+      var docEmail = data['email'];
+      if (docEmail == email) {
+        String docId = doc.id;
+        sp.setString('Id', docId);
+        sp.setString('email', email);
+        sp.setString('fullName', data['fullName']);
+        sp.setString('password', data['password']);
+        sp.setString('birthdate', data['birthdate']);
+        sp.setString('confirmPassword', data['confirmPassword']);
+        break;
+      }
+    }
   }
 
   Future<void> fetchUserProfile() async {
@@ -47,21 +70,19 @@ class _ChatScreenState extends State<ChatScreen> {
     QuerySnapshot querySnapshot = await firestore
         .collection('profiles')
         .where('email', isEqualTo: email)
-        .limit(3)
+        .limit(2)
         .get();
 
     if (querySnapshot.docs.isNotEmpty) {
       DocumentSnapshot doc = querySnapshot.docs.first;
-      Object? data = doc.data();
-      String imageUrl = (data! as Map<String, dynamic>)['imageUrl'] as String;
-      fullname = (data as Map<String, dynamic>)['fullname'] as String?;
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      String imageUrl = data['imageUrl'] as String;
+      String? fullname = data['fullname'] as String?;
 
-      if (mounted) {
-        setState(() {
-          this.imageUrl = imageUrl;
-          profile.fullname = fullname ?? '';
-        });
-      }
+      setState(() {
+        this.imageUrl = imageUrl;
+        profile.fullname = fullname ?? '';
+      });
     }
   }
 
@@ -80,68 +101,32 @@ class _ChatScreenState extends State<ChatScreen> {
           IconButton(
             onPressed: () {
               auth.signOut().then(
-                    (value) => {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return const LoginScreen();
-                          },
-                        ),
-                      ),
-                    },
+                (_) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return const LoginScreen();
+                      },
+                    ),
                   );
+                },
+              );
             },
             icon: const Icon(Icons.logout),
           ),
         ],
         backgroundColor: Theme.of(context).primaryColor,
       ),
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            DrawerHeader(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: NetworkImage(
-                    'https://images.pexels.com/photos/531880/pexels-photo-531880.jpeg?cs=srgb&dl=pexels-pixabay-531880.jpg&fm=jpg',
-                  ),
-                  fit: BoxFit.cover,
-                ),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 30),
-                    child: imageUrl != null
-                        ? CircleAvatar(
-                            radius: 30,
-                            backgroundImage: NetworkImage(imageUrl!),
-                          )
-                        : const CircleAvatar(
-                            radius: 30,
-                            backgroundImage:
-                                AssetImage('assets/default_profile.png'),
-                          ),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Text(
-                    profile.fullname,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
+      body: Column(
+        children: [
+          if (imageUrl != null)
+            CircleAvatar(
+              backgroundImage: NetworkImage(imageUrl!),
             ),
-          ],
-        ),
+          const SizedBox(height: 10),
+          Text(profile.fullname),
+        ],
       ),
     );
   }
