@@ -26,11 +26,18 @@ class _ChatScreenState extends State<ChatScreen> {
   final Future<FirebaseApp> firebase = Firebase.initializeApp();
 
   String? imageUrl;
+  String? fullname;
 
   @override
   void initState() {
     super.initState();
     fetchUserProfile();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    // อื่น ๆ ที่คุณต้องการทำในการทำลายวัตถุ
   }
 
   Future<void> fetchUserProfile() async {
@@ -40,19 +47,21 @@ class _ChatScreenState extends State<ChatScreen> {
     QuerySnapshot querySnapshot = await firestore
         .collection('profiles')
         .where('email', isEqualTo: email)
-        .limit(1)
+        .limit(3)
         .get();
 
     if (querySnapshot.docs.isNotEmpty) {
       DocumentSnapshot doc = querySnapshot.docs.first;
       Object? data = doc.data();
       String imageUrl = (data! as Map<String, dynamic>)['imageUrl'] as String;
-      String? fullname = (data as Map<String, dynamic>)['fullname'] as String?;
+      fullname = (data as Map<String, dynamic>)['fullname'] as String?;
 
-      setState(() {
-        this.imageUrl = imageUrl;
-        profile.fullname = fullname ?? '';
-      });
+      if (mounted) {
+        setState(() {
+          this.imageUrl = imageUrl;
+          profile.fullname = fullname ?? '';
+        });
+      }
     }
   }
 
@@ -108,11 +117,11 @@ class _ChatScreenState extends State<ChatScreen> {
                     padding: const EdgeInsets.only(right: 30),
                     child: imageUrl != null
                         ? CircleAvatar(
-                            radius: 25,
+                            radius: 30,
                             backgroundImage: NetworkImage(imageUrl!),
                           )
                         : const CircleAvatar(
-                            radius: 25,
+                            radius: 30,
                             backgroundImage:
                                 AssetImage('assets/default_profile.png'),
                           ),
@@ -125,6 +134,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
+                      color: Colors.white,
                     ),
                   ),
                 ],
