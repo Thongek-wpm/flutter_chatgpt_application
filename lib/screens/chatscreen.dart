@@ -25,12 +25,12 @@ class _ChatScreenState extends State<ChatScreen> {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final Future<FirebaseApp> firebase = Firebase.initializeApp();
 
-  String? imageUrl; // เปลี่ยนเป็น nullable ให้ imageUrl สามารถเป็น null ได้
+  String? imageUrl;
 
   @override
   void initState() {
     super.initState();
-    fetchUserProfile(); // เรียกใช้เมธอด fetchUserProfile เพื่อดึงข้อมูลโปรไฟล์ผู้ใช้
+    fetchUserProfile();
   }
 
   Future<void> fetchUserProfile() async {
@@ -47,8 +47,11 @@ class _ChatScreenState extends State<ChatScreen> {
       DocumentSnapshot doc = querySnapshot.docs.first;
       Object? data = doc.data();
       String imageUrl = (data! as Map<String, dynamic>)['imageUrl'] as String;
+      String? fullname = (data as Map<String, dynamic>)['fullname'] as String?;
+
       setState(() {
         this.imageUrl = imageUrl;
+        profile.fullname = fullname ?? '';
       });
     }
   }
@@ -91,7 +94,9 @@ class _ChatScreenState extends State<ChatScreen> {
             DrawerHeader(
               decoration: const BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('assets/image/background-blue.jpg'),
+                  image: NetworkImage(
+                    'https://images.pexels.com/photos/531880/pexels-photo-531880.jpeg?cs=srgb&dl=pexels-pixabay-531880.jpg&fm=jpg',
+                  ),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -101,20 +106,25 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(right: 30),
-                    child: ClipRRect(
-                      child: imageUrl != null
-                          ? Image.network(
-                              imageUrl!,
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
-                            )
-                          : Image.asset(
-                              'assets/default_profile.png', // รูปภาพเริ่มต้นใน assets
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
-                            ),
+                    child: imageUrl != null
+                        ? CircleAvatar(
+                            radius: 25,
+                            backgroundImage: NetworkImage(imageUrl!),
+                          )
+                        : const CircleAvatar(
+                            radius: 25,
+                            backgroundImage:
+                                AssetImage('assets/default_profile.png'),
+                          ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Text(
+                    profile.fullname,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
                     ),
                   ),
                 ],
