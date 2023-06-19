@@ -116,14 +116,14 @@ class _ChatScreenState extends State<ChatScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) {
-                                return LoginScreen();
+                                return const LoginScreen();
                               },
                             ),
                           ),
                         },
                       );
                 },
-                child: Text('LOGOUT'),
+                child: const Text('LOGOUT'),
               ),
             )
           ],
