@@ -25,6 +25,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     password: '',
     birthdate: '',
     confirmPassword: '',
+    imageUrl: '',
   );
   File? _image;
   final picker = ImagePicker();

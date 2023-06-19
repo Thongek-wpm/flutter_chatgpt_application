@@ -4,6 +4,7 @@ class Profile {
   late String password;
   late String birthdate;
   late String confirmPassword;
+  late String imageUrl;
 
   Profile({
     required this.fullname,
@@ -11,5 +12,6 @@ class Profile {
     required this.password,
     required this.birthdate,
     required this.confirmPassword,
+    required this.imageUrl,
   });
 }

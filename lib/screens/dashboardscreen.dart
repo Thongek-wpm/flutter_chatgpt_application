@@ -2,18 +2,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chatgpt_application/models/profiles.dart';
-import 'package:flutter_chatgpt_application/screens/dashboardscreen.dart';
+import 'package:flutter_chatgpt_application/screens/chatscreen.dart';
 import 'package:flutter_chatgpt_application/screens/loginscreen.dart';
 import 'package:flutter_chatgpt_application/screens/profilescreen.dart';
 
-class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+class DashBardScreen extends StatefulWidget {
+  const DashBardScreen({super.key});
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  State<DashBardScreen> createState() => _DashBardScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _DashBardScreenState extends State<DashBardScreen> {
   Profile profile = Profile(
     fullname: '',
     email: '',
@@ -39,7 +39,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ChatGPT'),
+        title: const Text('DashBard'),
         backgroundColor: Theme.of(context).primaryColor,
       ),
       drawer: Drawer(
@@ -102,6 +102,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 );
               },
             ),
+
             // Add other menu items as needed
             Padding(
               padding: const EdgeInsets.all(40.0),

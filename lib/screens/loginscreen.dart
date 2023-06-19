@@ -24,6 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
     password: '',
     birthdate: '',
     confirmPassword: '',
+    imageUrl: '',
   );
   Future saveLoginTypeToSP(String profile) async {
     SharedPreferences sp = await SharedPreferences.getInstance();
@@ -40,6 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
         sp.setString('password', data['password']);
         sp.setString('birthdate', data['birthdate']);
         sp.setString('confirmPassword', data['confirmPassword']);
+        sp.setString('imageUrl', data['imageUrl']);
       }
     }
   }
@@ -146,55 +148,58 @@ class _LoginScreenState extends State<LoginScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      ElevatedButton(
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            _formKey.currentState!.save();
-                          }
-                          try {
-                            await FirebaseAuth.instance
-                                .signInWithEmailAndPassword(
-                              email: profile.email,
-                              password: profile.password,
-                            )
-                                .then((value) {
+                      Padding(
+                        padding: const EdgeInsets.all(40.0),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              _formKey.currentState!.save();
+                            }
+                            try {
+                              FirebaseAuth.instance
+                                  .signInWithEmailAndPassword(
+                                email: profile.email,
+                                password: profile.password,
+                              )
+                                  .then((value) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Welcome to Demo App"),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                                _formKey.currentState!.reset();
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) {
+                                      return ChatScreen();
+                                    },
+                                  ),
+                                );
+                              });
+                            } on FirebaseAuthException catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("Welcome to Demo App"),
+                                SnackBar(
+                                  content: Text(e.message!),
                                   behavior: SnackBarBehavior.floating,
                                 ),
                               );
                               _formKey.currentState!.reset();
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) {
-                                    return const ChatScreen();
-                                  },
-                                ),
-                              );
-                            });
-                          } on FirebaseAuthException catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(e.message!),
-                                behavior: SnackBarBehavior.floating,
+                            }
+                          },
+                          child: const Row(
+                            children: [
+                              Icon(
+                                Icons.login,
+                                size: 20,
                               ),
-                            );
-                            _formKey.currentState!.reset();
-                          }
-                        },
-                        child: const Row(
-                          children: [
-                            Icon(
-                              Icons.login,
-                              size: 20,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Text('Login'),
-                            ),
-                          ],
+                              Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text('Login'),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       Padding(
