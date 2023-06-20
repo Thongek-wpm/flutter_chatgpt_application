@@ -164,7 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   .then((value) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text("Welcome to Demo App"),
+                                    content: Text("Welcome to ChatGPT"),
                                     behavior: SnackBarBehavior.floating,
                                   ),
                                 );
@@ -203,7 +203,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(5.0),
                         child: ElevatedButton(
                           style: ButtonStyle(
                             minimumSize: MaterialStateProperty.all(

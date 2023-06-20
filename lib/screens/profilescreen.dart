@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -55,14 +56,71 @@ class _ProFileSrceenState extends State<ProFileSrceen> {
                   fit: BoxFit.cover,
                 ),
               ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(profile.fullname),
-                ],
+              child: FutureBuilder(
+                future:
+                    firebase, // Future ของ FirebaseApp จากการเรียก Firebase.initializeApp()
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  } else {
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      // ดึง user ที่เข้าสู่ระบบ
+                      final user = FirebaseAuth.instance.currentUser;
+
+                      if (user != null) {
+                        // ดึงข้อมูลจาก Firestore
+                        return FutureBuilder(
+                          future: FirebaseFirestore.instance
+                              .collection('profiles')
+                              .doc(user.uid)
+                              .get(),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<DocumentSnapshot> snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return CircularProgressIndicator();
+                            } else {
+                              if (snapshot.hasError) {
+                                return Text('Error: ${snapshot.error}');
+                              } else if (snapshot.hasData &&
+                                  snapshot.data != null) {
+                                // แปลงข้อมูลจาก Firestore เป็นคลาส Profile
+                                final data = snapshot.data!.data()
+                                    as Map<String, dynamic>;
+                                final profile = Profile(
+                                  fullname: data['fullname'] ?? '',
+                                  email: data['email'] ?? '',
+                                  password: data['password'] ?? '',
+                                  birthdate: data['birthdate'] ?? '',
+                                  confirmPassword:
+                                      data['confirmPassword'] ?? '',
+                                  imageUrl: data['imageUrl'] ?? '',
+                                );
+
+                                return Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Text(profile.fullname),
+                                  ],
+                                );
+                              } else {
+                                return Text('Profile not found');
+                              }
+                            }
+                          },
+                        );
+                      } else {
+                        return Text('User not found');
+                      }
+                    }
+                  }
+                },
               ),
             ),
+
             ListTile(
               leading: const Icon(Icons.chat),
               title: const Text('Chat'),
@@ -102,7 +160,6 @@ class _ProFileSrceenState extends State<ProFileSrceen> {
                 );
               },
             ),
-
             // Add other menu items as needed
             Padding(
               padding: const EdgeInsets.all(40.0),
@@ -117,14 +174,14 @@ class _ProFileSrceenState extends State<ProFileSrceen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) {
-                                return LoginScreen();
+                                return const LoginScreen();
                               },
                             ),
                           ),
                         },
                       );
                 },
-                child: Text('LOGOUT'),
+                child: const Text('LOGOUT'),
               ),
             )
           ],
