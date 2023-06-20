@@ -34,7 +34,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // ignore: prefer_typing_uninitialized_variables
   var results;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
