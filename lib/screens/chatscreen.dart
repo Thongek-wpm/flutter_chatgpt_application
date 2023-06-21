@@ -8,7 +8,8 @@ import 'package:flutter_chatgpt_application/models/profiles.dart';
 import 'package:flutter_chatgpt_application/screens/dashboardscreen.dart';
 import 'package:flutter_chatgpt_application/screens/loginscreen.dart';
 import 'package:flutter_chatgpt_application/screens/profilescreen.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -39,35 +40,35 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // ignore: prefer_typing_uninitialized_variables
   var results;
+var dio = Dio();
 
-  final TextEditingController _messageController = TextEditingController();
-  String _chatResponse = '';
   Future<String> sendChatRequest(String message) async {
-    String apiUrl =
-        "https://api.openai.com/v1/engines/davinci-codex/completions";
-    String apiKey = "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";
+  String apiUrl = 'https://api.openai.com/v1/engines/davinci-codex/completions';
+  String apiKey = 'YOUR_API_KEY';
 
-    var headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $apiKey',
-    };
+  var headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer $apiKey',
+  };
 
-    var body = jsonEncode({
-      'prompt': message,
-      'max_tokens': 50,
-    });
+  var data = {
+    'prompt': message,
+    'max_tokens': 50,
+  };
 
-    var response =
-        await http.post(Uri.parse(apiUrl), headers: headers, body: body);
+  try {
+    var response = await dio.post(apiUrl, data: data, options: Options(headers: headers));
 
     if (response.statusCode == 200) {
-      var data = jsonDecode(response.body);
-      var completion = data['choices'][0]['text'];
+      var completion = response.data['choices'][0]['text'];
       return completion;
     } else {
       throw Exception('Failed to send chat request');
     }
+  } catch (error) {
+    throw Exception('Failed to send chat request: $error');
   }
+}
 
   void _sendMessage() async {
     String message = _messageController.text;
