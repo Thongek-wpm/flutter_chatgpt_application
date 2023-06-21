@@ -1,13 +1,16 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chatgpt_application/models/chat_messener.dart';
 import 'package:flutter_chatgpt_application/models/profiles.dart';
+import 'package:flutter_chatgpt_application/screens/chatmessenerwidget.dart';
 import 'package:flutter_chatgpt_application/screens/dashboardscreen.dart';
 import 'package:flutter_chatgpt_application/screens/loginscreen.dart';
 import 'package:flutter_chatgpt_application/screens/profilescreen.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:http/http.dart' as https;
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -29,6 +32,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    isLoading = false;
   }
 
   final auth = FirebaseAuth.instance;
@@ -37,39 +41,33 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // ignore: prefer_typing_uninitialized_variables
   var results;
-  TextEditingController _messageController = TextEditingController();
-  List<String> _chatHistory = [];
 
-  void _sendMessage() async {
-    String apiUrl =
-        'http://127.0.0.1:5000/chat'; // URL ของแอปพลิเคชัน backend ของคุณ
-
-    // สร้างข้อมูล body จาก chatHistory และ message
-    Map<String, dynamic> body = {
-      'chat_history': jsonEncode(_chatHistory),
-      'message': _messageController.text,
-    };
-
-    // ส่งคำขอ POST
-    http.Response response = await http.post(
-      Uri.parse(apiUrl),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(body),
+  Future<String> generateResponse(String prompt) async {
+    const apiKey = "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";
+    var url = Uri.https("api.openai.com", "/v1/completions");
+    final respnse = await https.post(
+      url,
+      headers: {
+        "content-Type": "application/json",
+        "Authorization": "Bearer $apiKey",
+      },
+      body: json.encoder,
     );
+    Map<String, dynamic> newresonse = jsonDecode(respnse.body);
+    return newresonse['choices'][0]['text'];
+  }
 
-    // ตรวจสอบสถานะการตอบกลับ
-    if (response.statusCode == 200) {
-      // ดึงข้อมูลจากเนื้อหาของคำตอบ
-      var responseData = jsonDecode(response.body);
-      String reply = responseData['reply'];
+  final _textController = TextEditingController();
+  final _scrollController = ScrollController();
+  final List<ChatMessener> _messages = [];
+  late bool isLoading;
 
-      // เพิ่มคำตอบในประวัติสนทนา
-      setState(() {
-        _chatHistory.add(reply);
-      });
-    } else {
-      print('Request failed with status: ${response.statusCode}');
-    }
+  void _scrollDown() {
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: Duration(microseconds: 300),
+      curve: Curves.easeOut,
+    );
   }
 
   @override
@@ -223,38 +221,17 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
       ),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: ListView.builder(
-              itemCount: _chatHistory.length,
-              itemBuilder: (BuildContext context, int index) {
-                return ListTile(
-                  title: Text(_chatHistory[index]),
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: InputDecoration(
-                      hintText: 'Enter your message...',
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: _sendMessage,
-                ),
-              ],
-            ),
-          ),
-        ],
+      body: Expanded(
+        child: ListView.builder(
+            controller: _scrollController,
+            itemCount: _messages.length,
+            itemBuilder: (context, Index) {
+              var messages = _messages[Index];
+              return ChatMessenerWidget(
+                text: messages.text,
+                chatMessageType:messages.chatMessageType ,
+              );
+            }),
       ),
     );
   }
