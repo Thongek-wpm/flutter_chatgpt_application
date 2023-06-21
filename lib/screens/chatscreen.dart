@@ -1,6 +1,5 @@
 // ignore_for_file: library_private_types_in_public_api, depend_on_referenced_packages
 
-import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -40,50 +39,59 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // ignore: prefer_typing_uninitialized_variables
   var results;
-var dio = Dio();
+  var dio = Dio();
 
   Future<String> sendChatRequest(String message) async {
-  String apiUrl = 'https://api.openai.com/v1/engines/davinci-codex/completions';
-  String apiKey = 'YOUR_API_KEY';
+    String apiUrl =
+        'https://api.openai.com/v1/engines/davinci-codex/completions';
+    String apiKey = 'YOUR_API_KEY';
 
-  var headers = {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer $apiKey',
-  };
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $apiKey',
+    };
 
-  var data = {
-    'prompt': message,
-    'max_tokens': 50,
-  };
-
-  try {
-    var response = await dio.post(apiUrl, data: data, options: Options(headers: headers));
-
-    if (response.statusCode == 200) {
-      var completion = response.data['choices'][0]['text'];
-      return completion;
-    } else {
-      throw Exception('Failed to send chat request');
-    }
-  } catch (error) {
-    throw Exception('Failed to send chat request: $error');
-  }
-}
-
-  void _sendMessage() async {
-    String message = _messageController.text;
-    String response;
+    var data = {
+      'prompt': message,
+      'max_tokens': 50,
+    };
 
     try {
-      response = await sendChatRequest(message);
-    } catch (e) {
-      print('Error: $e');
+      var response = await dio.post(apiUrl,
+          data: data, options: Options(headers: headers));
+
+      if (response.statusCode == 200) {
+        var completion = response.data['choices'][0]['text'];
+        return completion;
+      } else {
+        throw Exception('Failed to send chat request');
+      }
+    } catch (error) {
+      throw Exception('Failed to send chat request: $error');
+    }
+  }
+
+  List<String> chatMessages = [];
+  final TextEditingController _messageController = TextEditingController();
+
+  void _sendMessage() async {
+    String message = _messageController.text.trim();
+
+    if (message.isEmpty) {
       return;
     }
 
-    setState(() {
-      _chatResponse = response;
-    });
+    try {
+      String response = await sendChatRequest(message);
+      setState(() {
+        chatMessages.add(message);
+        chatMessages.add(response);
+      });
+    } catch (error) {
+      print('Failed to send chat request: $error');
+    }
+
+    _messageController.clear();
   }
 
   @override
@@ -243,7 +251,12 @@ var dio = Dio();
             child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: Text(_chatResponse),
+                child: ListView.builder(
+                  itemCount: chatMessages.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Text(chatMessages[index]);
+                  },
+                ),
               ),
             ),
           ),
@@ -257,10 +270,10 @@ var dio = Dio();
                     child: Container(
                       constraints: const BoxConstraints(
                         maxHeight: 60.5,
-                        maxWidth: 300, // กำหนดความกว้างสูงสุดของกล่อง
+                        maxWidth: 300,
                       ),
                       decoration: const BoxDecoration(
-                        color: Colors.white38, // กำหนดสีพื้นหลังเป็นสีออน
+                        color: Colors.white38,
                         borderRadius: BorderRadius.all(
                           Radius.circular(15),
                         ),
@@ -286,9 +299,7 @@ var dio = Dio();
                     size: 25,
                   ),
                   onPressed: _sendMessage,
-
-                  // กำหนดรูปทรงเป็นวงกลม
-                )
+                ),
               ],
             ),
           ),
