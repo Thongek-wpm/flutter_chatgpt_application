@@ -281,18 +281,12 @@ class _ChatScreenState extends State<ChatScreen> {
                 IconButton(
                   icon: const Icon(
                     Icons.send,
-                    color: Colors.white,
-                    size: 15,
+                    color: Colors.lightGreenAccent,
+                    size: 25,
                   ),
                   onPressed: _sendMessage,
-                  color: Colors.green.shade400,
-                  style: const ButtonStyle(
-                    shape: MaterialStatePropertyAll(
-                      CircleBorder(
-                        side: BorderSide(style: BorderStyle.solid),
-                      ),
-                    ),
-                  ), // กำหนดรูปทรงเป็นวงกลม
+
+                  // กำหนดรูปทรงเป็นวงกลม
                 )
               ],
             ),
