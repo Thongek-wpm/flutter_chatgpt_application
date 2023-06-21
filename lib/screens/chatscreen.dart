@@ -1,22 +1,19 @@
 import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_chatgpt_application/models/chat_messener.dart';
 import 'package:flutter_chatgpt_application/models/profiles.dart';
-import 'package:flutter_chatgpt_application/screens/chatmessenerwidget.dart';
 import 'package:flutter_chatgpt_application/screens/dashboardscreen.dart';
 import 'package:flutter_chatgpt_application/screens/loginscreen.dart';
 import 'package:flutter_chatgpt_application/screens/profilescreen.dart';
-import 'package:http/http.dart' as https;
+import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  const ChatScreen({Key? key}) : super(key: key);
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  _ChatScreenState createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
@@ -32,7 +29,6 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    isLoading = false;
   }
 
   final auth = FirebaseAuth.instance;
@@ -42,32 +38,49 @@ class _ChatScreenState extends State<ChatScreen> {
   // ignore: prefer_typing_uninitialized_variables
   var results;
 
-  Future<String> generateResponse(String prompt) async {
-    const apiKey = "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";
-    var url = Uri.https("api.openai.com", "/v1/completions");
-    final respnse = await https.post(
-      url,
-      headers: {
-        "content-Type": "application/json",
-        "Authorization": "Bearer $apiKey",
-      },
-      body: json.encoder,
-    );
-    Map<String, dynamic> newresonse = jsonDecode(respnse.body);
-    return newresonse['choices'][0]['text'];
+  final TextEditingController _messageController = TextEditingController();
+  String _chatResponse = '';
+  Future<String> sendChatRequest(String message) async {
+    String apiUrl =
+        "https://api.openai.com/v1/engines/org-0Fv6BfZYw8hZeF4XCtk9Y72J/completions";
+    String apiKey = 'VNFPXEAnVGfSohk7edDXT3BlbkFJOqtxUwLktJDYPGbYjJxA';
+
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $apiKey',
+    };
+
+    var body = jsonEncode({
+      'prompt': message,
+      'max_tokens': 50,
+    });
+
+    var response =
+        await http.post(Uri.parse(apiUrl), headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      var completion = data['choices'][0]['text'];
+      return completion;
+    } else {
+      throw Exception('Failed to send chat request');
+    }
   }
 
-  final _textController = TextEditingController();
-  final _scrollController = ScrollController();
-  final List<ChatMessener> _messages = [];
-  late bool isLoading;
+  void _sendMessage() async {
+    String message = _messageController.text;
+    String response;
 
-  void _scrollDown() {
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
-      duration: Duration(microseconds: 300),
-      curve: Curves.easeOut,
-    );
+    try {
+      response = await sendChatRequest(message);
+    } catch (e) {
+      print('Error: $e');
+      return;
+    }
+
+    setState(() {
+      _chatResponse = response;
+    });
   }
 
   @override
@@ -75,7 +88,6 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('ChatGPT'),
-        backgroundColor: Theme.of(context).primaryColor,
       ),
       drawer: Drawer(
         child: ListView(
@@ -95,7 +107,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     firebase, // Future ของ FirebaseApp จากการเรียก Firebase.initializeApp()
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
+                    return const CircularProgressIndicator();
                   } else {
                     if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
@@ -114,7 +126,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               AsyncSnapshot<DocumentSnapshot> snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
-                              return CircularProgressIndicator();
+                              return const CircularProgressIndicator();
                             } else {
                               if (snapshot.hasError) {
                                 return Text('Error: ${snapshot.error}');
@@ -141,13 +153,13 @@ class _ChatScreenState extends State<ChatScreen> {
                                   ],
                                 );
                               } else {
-                                return Text('Profile not found');
+                                return const Text('Profile not found');
                               }
                             }
                           },
                         );
                       } else {
-                        return Text('User not found');
+                        return const Text('User not found');
                       }
                     }
                   }
@@ -221,17 +233,36 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
       ),
-      body: Expanded(
-        child: ListView.builder(
-            controller: _scrollController,
-            itemCount: _messages.length,
-            itemBuilder: (context, Index) {
-              var messages = _messages[Index];
-              return ChatMessenerWidget(
-                text: messages.text,
-                chatMessageType:messages.chatMessageType ,
-              );
-            }),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Text(_chatResponse),
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _messageController,
+                    decoration: const InputDecoration(
+                      hintText: 'Enter your message...',
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.send),
+                  onPressed: _sendMessage,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
