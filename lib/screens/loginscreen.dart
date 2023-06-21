@@ -165,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text("Welcome to ChatGPT"),
-                                    behavior: SnackBarBehavior.floating,
+                                    behavior: SnackBarBehavior.fixed,
                                   ),
                                 );
                                 _formKey.currentState!.reset();

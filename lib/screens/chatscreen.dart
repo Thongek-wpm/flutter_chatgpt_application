@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api, depend_on_referenced_packages
+
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -42,8 +44,8 @@ class _ChatScreenState extends State<ChatScreen> {
   String _chatResponse = '';
   Future<String> sendChatRequest(String message) async {
     String apiUrl =
-        "https://api.openai.com/v1/engines/org-0Fv6BfZYw8hZeF4XCtk9Y72J/completions";
-    String apiKey = 'VNFPXEAnVGfSohk7edDXT3BlbkFJOqtxUwLktJDYPGbYjJxA';
+        "https://api.openai.com/v1/engines/davinci-codex/completions";
+    String apiKey = "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";
 
     var headers = {
       'Content-Type': 'application/json',
@@ -88,8 +90,10 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('ChatGPT'),
+        backgroundColor: Theme.of(context).primaryColor, // กำหนดสีของ AppBar
       ),
       drawer: Drawer(
+        backgroundColor: Theme.of(context).highlightColor,
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -166,7 +170,6 @@ class _ChatScreenState extends State<ChatScreen> {
                 },
               ),
             ),
-
             ListTile(
               leading: const Icon(Icons.chat),
               title: const Text('Chat'),
@@ -248,22 +251,55 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: const InputDecoration(
-                      hintText: 'Enter your message...',
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Container(
+                      constraints: const BoxConstraints(
+                        maxHeight: 60.5,
+                        maxWidth: 300, // กำหนดความกว้างสูงสุดของกล่อง
+                      ),
+                      decoration: const BoxDecoration(
+                        color: Colors.white38, // กำหนดสีพื้นหลังเป็นสีออน
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(15),
+                        ),
+                      ),
+                      child: TextField(
+                        controller: _messageController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(15),
+                            ),
+                          ),
+                          hintText: 'Enter your message...',
+                        ),
+                      ),
                     ),
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.send),
+                  icon: const Icon(
+                    Icons.send,
+                    color: Colors.white,
+                    size: 15,
+                  ),
                   onPressed: _sendMessage,
-                ),
+                  color: Colors.green.shade400,
+                  style: const ButtonStyle(
+                    shape: MaterialStatePropertyAll(
+                      CircleBorder(
+                        side: BorderSide(style: BorderStyle.solid),
+                      ),
+                    ),
+                  ), // กำหนดรูปทรงเป็นวงกลม
+                )
               ],
             ),
           ),
         ],
       ),
+      backgroundColor: Theme.of(context).highlightColor,
     );
   }
 }
