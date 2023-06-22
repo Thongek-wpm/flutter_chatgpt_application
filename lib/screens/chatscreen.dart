@@ -1,4 +1,6 @@
-// ignore_for_file: library_private_types_in_public_api, depend_on_referenced_packages
+// ignore_for_file: library_private_types_in_public_api, depend_on_referenced_packages, empty_catches
+
+import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,8 +9,8 @@ import 'package:flutter_chatgpt_application/models/profiles.dart';
 import 'package:flutter_chatgpt_application/screens/dashboardscreen.dart';
 import 'package:flutter_chatgpt_application/screens/loginscreen.dart';
 import 'package:flutter_chatgpt_application/screens/profilescreen.dart';
-import 'package:dio/dio.dart';
 
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -39,59 +41,54 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // ignore: prefer_typing_uninitialized_variables
   var results;
-  var dio = Dio();
 
-  Future<String> sendChatRequest(String message) async {
+  List<String> chatMessages = [];
+
+  final TextEditingController _messageController = TextEditingController();
+
+  void _sendMessage(String message) async {
+    setState(() {
+      chatMessages.add('You: $message');
+    });
+
+    // Send the message to the chatbot API
+    String response = await fetchChatbotResponse(message);
+
+    setState(() {
+      chatMessages.add('Bot: $response');
+    });
+
+    _messageController.clear();
+  }
+
+  Future<String> fetchChatbotResponse(String message) async {
     String apiUrl =
-        'https://api.openai.com/v1/engines/davinci-codex/completions';
-    String apiKey = 'YOUR_API_KEY';
+        'https://api.openai.com/v1.1/engines/davinci-codex/completions';
+    String apiKey = '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';
 
     var headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $apiKey',
     };
 
-    var data = {
+    var body = {
       'prompt': message,
       'max_tokens': 50,
     };
 
-    try {
-      var response = await dio.post(apiUrl,
-          data: data, options: Options(headers: headers));
+    var response = await http.post(
+      Uri.parse(apiUrl),
+      headers: headers,
+      body: json.encode(body),
+    );
 
-      if (response.statusCode == 200) {
-        var completion = response.data['choices'][0]['text'];
-        return completion;
-      } else {
-        throw Exception('Failed to send chat request');
-      }
-    } catch (error) {
-      throw Exception('Failed to send chat request: $error');
+    if (response.statusCode == 200) {
+      var data = json.decode(response.body);
+      var completion = data['choices'][0]['text'];
+      return completion;
+    } else {
+      throw Exception('Failed to fetch chatbot response');
     }
-  }
-
-  List<String> chatMessages = [];
-  final TextEditingController _messageController = TextEditingController();
-
-  void _sendMessage() async {
-    String message = _messageController.text.trim();
-
-    if (message.isEmpty) {
-      return;
-    }
-
-    try {
-      String response = await sendChatRequest(message);
-      setState(() {
-        chatMessages.add(message);
-        chatMessages.add(response);
-      });
-    } catch (error) {
-      print('Failed to send chat request: $error');
-    }
-
-    _messageController.clear();
   }
 
   @override
@@ -248,57 +245,35 @@ class _ChatScreenState extends State<ChatScreen> {
       body: Column(
         children: [
           Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: ListView.builder(
-                  itemCount: chatMessages.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Text(chatMessages[index]);
-                  },
-                ),
-              ),
+            child: ListView.builder(
+              itemCount: chatMessages.length,
+              itemBuilder: (BuildContext context, int index) {
+                return ListTile(
+                  title: Text(chatMessages[index]),
+                );
+              },
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            padding: const EdgeInsets.all(10.0),
             child: Row(
               children: [
                 Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: Container(
-                      constraints: const BoxConstraints(
-                        maxHeight: 60.5,
-                        maxWidth: 300,
-                      ),
-                      decoration: const BoxDecoration(
-                        color: Colors.white38,
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(15),
-                        ),
-                      ),
-                      child: TextField(
-                        controller: _messageController,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(15),
-                            ),
-                          ),
-                          hintText: 'Enter your message...',
-                        ),
-                      ),
+                  child: TextField(
+                    controller: _messageController,
+                    decoration: const InputDecoration(
+                      hintText: 'Enter your message...',
                     ),
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(
-                    Icons.send,
-                    color: Colors.lightGreenAccent,
-                    size: 25,
-                  ),
-                  onPressed: _sendMessage,
+                  icon: const Icon(Icons.send),
+                  onPressed: () {
+                    String message = _messageController.text.trim();
+                    if (message.isNotEmpty) {
+                      _sendMessage(message);
+                    }
+                  },
                 ),
               ],
             ),
