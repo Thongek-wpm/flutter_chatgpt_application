@@ -254,7 +254,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.only(bottom: 10.0),
             child: Row(
               children: [
                 Expanded(
