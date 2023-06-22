@@ -21,7 +21,14 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  Profile profile = Profile as Profile;
+  Profile profile = Profile(
+    fullname: '',
+    email: '',
+    password: '',
+    birthdate: '',
+    confirmPassword: '',
+    imageUrl: '',
+  );
 
   @override
   void initState() {
@@ -35,29 +42,9 @@ class _ChatScreenState extends State<ChatScreen> {
   // ignore: prefer_typing_uninitialized_variables
   var results;
 
-  List<String> chatMessages = [];
-
-  final TextEditingController _messageController = TextEditingController();
-
-  void _sendMessage(String message) async {
-    setState(() {
-      chatMessages.add('You: $message');
-    });
-
-    // Send the message to the chatbot API
-    String response = await fetchChatbotResponse(message);
-
-    setState(() {
-      chatMessages.add('Bot: $response');
-    });
-
-    _messageController.clear();
-  }
-
   Future<String> fetchChatbotResponse(String message) async {
-    String apiUrl =
-        'https://api.openai.com/v1.1/engines/davinci-codex/completions';
-    String apiKey = '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';
+    String apiUrl = 'https://api.openai.com/v1/chat/completions';
+    String apiKey = 'YOU_KEY_API';
 
     var headers = {
       'Content-Type': 'application/json',
@@ -82,6 +69,25 @@ class _ChatScreenState extends State<ChatScreen> {
     } else {
       throw Exception('Failed to fetch chatbot response');
     }
+  }
+
+  List<String> chatMessages = [];
+
+  final TextEditingController _messageController = TextEditingController();
+
+  void _sendMessage(String message) async {
+    setState(() {
+      chatMessages.add('You: $message');
+    });
+
+    // Send the message to the chatbot API
+    String response = await fetchChatbotResponse(message);
+
+    setState(() {
+      chatMessages.add('Bot: $response');
+    });
+
+    _messageController.clear();
   }
 
   @override
