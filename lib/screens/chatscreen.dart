@@ -21,14 +21,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  Profile profile = Profile(
-    fullname: '',
-    email: '',
-    password: '',
-    birthdate: '',
-    confirmPassword: '',
-    imageUrl: '',
-  );
+  Profile profile = Profile as Profile;
 
   @override
   void initState() {
