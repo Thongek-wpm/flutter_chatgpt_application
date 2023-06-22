@@ -258,15 +258,32 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: const InputDecoration(
-                      hintText: 'Enter your message...',
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: TextField(
+                      
+                      style: const TextStyle(
+                        color: Colors.white,
+                      ),
+                      controller: _messageController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(25),
+                          ),
+                          borderSide: BorderSide(color: Colors.transparent),
+                        ),
+                        hintText: 'Enter your message...',
+                        filled: true, // เปิดใช้งานพื้นหลังของ TextField
+                        fillColor: Colors
+                            .transparent, // กำหนดสีพื้นหลังเป็นโปร่งแสงหรือไม่มีสี
+                      ),
                     ),
                   ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.send),
+                  color: Colors.green.shade400,
                   onPressed: () {
                     String message = _messageController.text.trim();
                     if (message.isNotEmpty) {
