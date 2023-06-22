@@ -259,9 +259,8 @@ class _ChatScreenState extends State<ChatScreen> {
               children: [
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.all(15.0),
+                    padding: const EdgeInsets.all(10.0),
                     child: TextField(
-                      
                       style: const TextStyle(
                         color: Colors.white,
                       ),
