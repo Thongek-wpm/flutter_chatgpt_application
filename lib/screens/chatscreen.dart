@@ -248,49 +248,63 @@ class _ChatScreenState extends State<ChatScreen> {
               itemCount: chatMessages.length,
               itemBuilder: (BuildContext context, int index) {
                 return ListTile(
-                  title: Text(chatMessages[index]),
+                  title: Text(
+                    chatMessages[index],
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                  ),
                 );
               },
             ),
           ),
           Container(
-            padding: const EdgeInsets.only(bottom: 10.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: TextField(
-                      style: const TextStyle(
-                        color: Colors.white,
-                      ),
-                      controller: _messageController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(25),
-                          ),
-                          borderSide: BorderSide(color: Colors.transparent),
+            padding: const EdgeInsets.only(
+              bottom: 0,
+              top: 0,
+              left: 0,
+              right: 0,
+            ),
+            child: Card(
+              color: Colors.grey.shade900,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: TextField(
+                        style: const TextStyle(
+                          color: Colors.white,
                         ),
-                        hintText: 'Enter your message...',
-                        filled: true, // เปิดใช้งานพื้นหลังของ TextField
-                        fillColor: Colors
-                            .transparent, // กำหนดสีพื้นหลังเป็นโปร่งแสงหรือไม่มีสี
+                        controller: _messageController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(25),
+                            ),
+                            borderSide: BorderSide(color: Colors.transparent),
+                          ),
+                          hintText: 'Enter your message...',
+                          filled: true, // เปิดใช้งานพื้นหลังของ TextField
+                          fillColor: Colors
+                              .grey, // กำหนดสีพื้นหลังเป็นโปร่งแสงหรือไม่มีสี
+                        ),
                       ),
                     ),
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.send),
-                  color: Colors.green.shade400,
-                  onPressed: () {
-                    String message = _messageController.text.trim();
-                    if (message.isNotEmpty) {
-                      _sendMessage(message);
-                    }
-                  },
-                ),
-              ],
+                  IconButton(
+                    icon: const Icon(Icons.send),
+                    color: Colors.green.shade400,
+                    onPressed: () {
+                      String message = _messageController.text.trim();
+                      if (message.isNotEmpty) {
+                        _sendMessage(message);
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ],
