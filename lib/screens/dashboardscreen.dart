@@ -196,7 +196,14 @@ class _DashBardScreenState extends State<DashBardScreen> {
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(Colors.transparent),
               ),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ChatScreen(),
+                  ),
+                );
+              },
               child: const Row(
                 children: [
                   Row(
