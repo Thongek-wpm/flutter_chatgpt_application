@@ -61,7 +61,7 @@ class _DashBardScreenState extends State<DashBardScreen> {
                     firebase, // Future ของ FirebaseApp จากการเรียก Firebase.initializeApp()
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
+                    return const CircularProgressIndicator();
                   } else {
                     if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
@@ -80,7 +80,7 @@ class _DashBardScreenState extends State<DashBardScreen> {
                               AsyncSnapshot<DocumentSnapshot> snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
-                              return CircularProgressIndicator();
+                              return const CircularProgressIndicator();
                             } else {
                               if (snapshot.hasError) {
                                 return Text('Error: ${snapshot.error}');
@@ -107,13 +107,13 @@ class _DashBardScreenState extends State<DashBardScreen> {
                                   ],
                                 );
                               } else {
-                                return Text('Profile not found');
+                                return const Text('Profile not found');
                               }
                             }
                           },
                         );
                       } else {
-                        return Text('User not found');
+                        return const Text('User not found');
                       }
                     }
                   }
@@ -187,6 +187,37 @@ class _DashBardScreenState extends State<DashBardScreen> {
           ],
         ),
       ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: ElevatedButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.transparent),
+              ),
+              onPressed: () {},
+              child: const Row(
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.add,
+                        size: 15,
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('Add to Chat room'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+      backgroundColor: Theme.of(context).highlightColor,
     );
   }
 }
