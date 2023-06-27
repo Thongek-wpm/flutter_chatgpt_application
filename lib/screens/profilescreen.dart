@@ -214,12 +214,11 @@ class _ProFileSrceenState extends State<ProFileSrceen> {
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Row(
             children: [
               const Padding(
-                padding: EdgeInsets.all(8.0),
+                padding: EdgeInsets.only(left: 8.0, bottom: 10),
                 child: Text(
                   'Profiles',
                   style: TextStyle(
@@ -230,8 +229,10 @@ class _ProFileSrceenState extends State<ProFileSrceen> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ElevatedButton(
+                padding: const EdgeInsets.only(
+                  left: 150,
+                ),
+                child: TextButton(
                   style: ButtonStyle(
                     backgroundColor:
                         MaterialStateProperty.all(Colors.transparent),
@@ -239,10 +240,18 @@ class _ProFileSrceenState extends State<ProFileSrceen> {
                   onPressed: () {},
                   child: const Row(
                     children: [
-                      Icon(Icons.mode_edit_outline),
+                      Icon(
+                        Icons.mode_edit_outline,
+                        color: Colors.white,
+                      ),
                       Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: Text('Edit Profiles'),
+                        child: Text(
+                          'Edit Profiles',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
                       )
                     ],
                   ),
