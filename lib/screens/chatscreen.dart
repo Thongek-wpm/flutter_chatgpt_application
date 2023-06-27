@@ -176,8 +176,16 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.chat),
-              title: const Text('Chat'),
+              leading: const Icon(
+                Icons.chat,
+                color: Colors.white,
+              ),
+              title: const Text(
+                'Chat',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
               onTap: () {
                 // Handle menu 1 tap
                 Navigator.push(
@@ -189,8 +197,16 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.filter_1_sharp),
-              title: const Text('Dashboard'),
+              leading: const Icon(
+                Icons.filter_1_sharp,
+                color: Colors.white,
+              ),
+              title: const Text(
+                'Dashboard',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
               onTap: () {
                 // Handle menu 1 tap
                 Navigator.push(
@@ -202,8 +218,16 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text('Profile'),
+              leading: const Icon(
+                Icons.person,
+                color: Colors.white,
+              ),
+              title: const Text(
+                'Profile',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
               onTap: () {
                 // Handle menu 1 tap
                 Navigator.push(
