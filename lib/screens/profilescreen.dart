@@ -44,6 +44,7 @@ class _ProFileSrceenState extends State<ProFileSrceen> {
         backgroundColor: Theme.of(context).primaryColor,
       ),
       drawer: Drawer(
+        backgroundColor: Theme.of(context).highlightColor,
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -211,6 +212,8 @@ class _ProFileSrceenState extends State<ProFileSrceen> {
           ],
         ),
       ),
+      body: Column(children: []),
+      backgroundColor: Theme.of(context).highlightColor,
     );
   }
 }
