@@ -40,7 +40,7 @@ class _DashBardScreenState extends State<DashBardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('DashBard'),
+        title: const Text('DashBoard'),
         backgroundColor: Theme.of(context).primaryColor,
       ),
       drawer: Drawer(
