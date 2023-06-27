@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chatgpt_application/models/profiles.dart';
 import 'package:flutter_chatgpt_application/screens/chatscreen.dart';
 import 'package:flutter_chatgpt_application/screens/dashboardscreen.dart';
+import 'package:flutter_chatgpt_application/screens/editprofilescreen.dart';
 import 'package:flutter_chatgpt_application/screens/loginscreen.dart';
 
 class ProFileSrceen extends StatefulWidget {
@@ -237,7 +238,15 @@ class _ProFileSrceenState extends State<ProFileSrceen> {
                     backgroundColor:
                         MaterialStateProperty.all(Colors.transparent),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    // Handle menu 1 tap
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const EditProfileScreen(),
+                      ),
+                    );
+                  },
                   child: const Row(
                     children: [
                       Icon(
