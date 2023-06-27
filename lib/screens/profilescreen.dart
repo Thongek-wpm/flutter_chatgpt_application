@@ -62,7 +62,7 @@ class _ProFileSrceenState extends State<ProFileSrceen> {
                     firebase, // Future ของ FirebaseApp จากการเรียก Firebase.initializeApp()
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
+                    return const CircularProgressIndicator();
                   } else {
                     if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
@@ -81,7 +81,7 @@ class _ProFileSrceenState extends State<ProFileSrceen> {
                               AsyncSnapshot<DocumentSnapshot> snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
-                              return CircularProgressIndicator();
+                              return const CircularProgressIndicator();
                             } else {
                               if (snapshot.hasError) {
                                 return Text('Error: ${snapshot.error}');
@@ -108,13 +108,13 @@ class _ProFileSrceenState extends State<ProFileSrceen> {
                                   ],
                                 );
                               } else {
-                                return Text('Profile not found');
+                                return const Text('Profile not found');
                               }
                             }
                           },
                         );
                       } else {
-                        return Text('User not found');
+                        return const Text('User not found');
                       }
                     }
                   }
@@ -212,7 +212,176 @@ class _ProFileSrceenState extends State<ProFileSrceen> {
           ],
         ),
       ),
-      body: Column(children: []),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                  'Profiles',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all(Colors.transparent),
+                  ),
+                  onPressed: () {},
+                  child: const Row(
+                    children: [
+                      Icon(Icons.mode_edit_outline),
+                      Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text('Edit Profiles'),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          profile.imageUrl.isNotEmpty
+              ? Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(75),
+                    child: Image.network(
+                      profile.imageUrl,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                )
+              : const Icon(
+                  Icons.person,
+                  size: 80,
+                  color: Colors.white,
+                ),
+          Column(
+            children: [
+              Row(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Name : ',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      profile.fullname,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'E-mail : ',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      auth.currentUser!.email!,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'PassWord : ',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextButton(
+                        onPressed: () {},
+                        child: const Row(
+                          children: [
+                            Icon(
+                              Icons.mode_edit,
+                              size: 16,
+                            ),
+                            Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(
+                                'EditPassword',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )),
+                ],
+              ),
+              Row(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'BirthDate : ',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      profile.birthdate,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
       backgroundColor: Theme.of(context).highlightColor,
     );
   }

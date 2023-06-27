@@ -44,6 +44,7 @@ class _DashBardScreenState extends State<DashBardScreen> {
         backgroundColor: Theme.of(context).primaryColor,
       ),
       drawer: Drawer(
+        backgroundColor: Theme.of(context).highlightColor,
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
